@@ -7,6 +7,7 @@ The objective of the project is to develop an architecture that is able to get t
 * Autonomusly reach a (x,y) coordinate inserted by the user
 * Let the user drive the robot with the keyboard
 * Let the user drive the robot with the keyboard by assisting him to avoid collisions
+
 The simulation environment seen in Gazebo is the following:
 
 It can can be seen the same simulation in Rviz, which is the following:
