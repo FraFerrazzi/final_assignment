@@ -18,14 +18,15 @@ from actionlib_msgs.msg import GoalID
 # Threshold for reaching the goal
 th_reach = 0.3
 # Threshold for avoiding collision
-th_collision = 0.5
+th_collision = 0.7
 # Max time to let the robot reach the target is 5 minutes
-max_time = 300000000
-# Empty string to cancel the goal
-id = ''
+max_time = rospy.Duration(120)
+# Initialize input for manual driving mode
+input_man = 'a'
 # Starting without a goal
 goal_set = False
-
+# Define vel_msg 
+vel_msg = Twist()
 
 
 '''
@@ -99,16 +100,16 @@ def set_goal():
             print('Please, type a number')
 
     # initialize the goal given by user
-    goal = MoveBaseActionGoal()
+    goal_msg = MoveBaseActionGoal()
 
-    goal.target_pose.header.frame_id = "map"
-    goal.target_pose.pose.orientation.w = 1
+    goal_msg.goal.target_pose.header.frame_id = "map"
+    goal_msg.goal.target_pose.pose.orientation.w = 1
 
-    goal.target_pose.pose.position.x = in_x
-    goal.target_pose.pose.position.y = in_y
+    goal_msg.goal.target_pose.pose.position.x = in_x
+    goal_msg.goal.target_pose.pose.position.y = in_y
 
     # publish goal message and get the time
-    pub_goal.publish(goal)
+    pub_goal.publish(goal_msg)
     start_time = rospy.Time.now()
 
     # goal has been set
@@ -135,7 +136,7 @@ def get_goal(msg):
    @param msg, actual goal
 '''
 def goal_reached(msg):
-
+    global goal_set
     if goal_set:
         # Get time
         end_time = rospy.Time.now()
@@ -163,14 +164,16 @@ def goal_reached(msg):
    Function used to cancel the goal
 '''
 def cancel_goal():
+    global goal_set
     # No goal has been set
     if not goal_set:
         print('\nThere is no goal to cancel!\n\n')
         time.sleep(2)
      # If there is a goal, cancel it
     else:
-        goal_to_cancel.id = id
-        pub_canc.publish(goal_to_cancel)
+        # cancel_msg.id = id
+        cancel_msg = GoalID()
+        pub_canc.publish(cancel_msg)
         goal_set = False
         print('\nGoal has been canceled!!!\n\n')
         time.sleep(2)
@@ -208,6 +211,8 @@ def manual_driving():
             pub_vel.publish(vel_msg)
         else:
             print('Please, type: b to go back to main menu\n')
+    # Setting input_man with something different from 'b' before exiting
+    input_man = 'a' 
 
 '''
    Function called each time arrives a message from the LaserScan topic
@@ -220,7 +225,6 @@ def manual_driving():
 '''
 def assisted_driving(msg):
     global regions, vel_msg
-    vel_msg = Twist()
     # If no assistance is required, exit the function
     if not drive_assistance:
         return
@@ -284,20 +288,21 @@ def assisted_driving(msg):
    @param 
 '''
 def set_user_vel(msg):
-    # If the robot is not in drive assistance mode, the velocity is published
-    if not drive_assistance:
-        pub_vel.publish(msg)
-        return
-    
+    global vel_msg
     # If the robot is not in manual mode, the command given from user is ignored
     if not man_mode:
-        return
-
-    # If the robot is in manual mode and the drive assistance is active the message 
-    # given by user is saved and checked from the assisted driving function
-    vel_msg.linear.x = msg.linear.x
-    vel_msg.angular.z = msg.angular.z
-    
+    	return
+    else:
+    	# If the robot is not in drive assistance mode, the velocity is published
+    	if not drive_assistance:
+    		pub_vel.publish(msg)
+    		return
+    	# If the robot is in manual mode and the drive assistance is active the message 
+    	# given by user is saved and checked from the assisted driving function
+    	else:
+    		vel_msg.linear.x = msg.linear.x
+    		vel_msg.angular.z = msg.angular.z    		
+     
 
 ''' 
    Function used to decide the behavior of the robot according to 
@@ -320,7 +325,7 @@ def driving_decision(input_u):
             time.sleep(5)
 
     # Manual driving mode
-    if input_u == 2:
+    elif input_u == 2:
         # Manual mode activated
         man_mode = True
         # No assistance
@@ -330,7 +335,7 @@ def driving_decision(input_u):
         man_mode = False
 
     # Assisted manual driving mode
-    if input_u == 3:
+    elif input_u == 3:
         # Manual mode activated
         man_mode = True
         # Assistance needed
@@ -341,6 +346,11 @@ def driving_decision(input_u):
         # Exit from manual mode
         man_mode = False
 
+    # Cancel robot position 
+    elif input_u == 4:
+    	cancel_goal()
+    	print('Goal canceled!') # Feeback to user
+    
     # Reset robot position
     elif input_u == 9:
         reset_world()
@@ -366,7 +376,7 @@ def driving_decision(input_u):
 ''' main function '''
 def main():
     # initialize global variables
-    global goal_set, drive_assistance, man_mode, input_u, id, goal_to_cancel
+    global goal_set, drive_assistance, man_mode, input_u, goal_to_cancel
     global pub_goal, pub_vel, pub_canc, sub_laser, sub_goal, sub_user_vel, sub_robot_pos, reset_world
 
     # Initialize that the goal has not been set yet
