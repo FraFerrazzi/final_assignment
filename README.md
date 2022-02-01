@@ -17,6 +17,12 @@ This solution is developed by: Francesco Ferrazzi 5262829.
 Table of Contents
 ----------------------
 
+- [Assignemnt 3 - Final Assignment](#assignemnt-3---final-assignment)
+  * [Table of Contents](#table-of-contents)
+  * [Installing and running](#installing-and-running)
+  * [Project Description](#project-description)
+  * [Pseudocode](#pseudocode)
+  * [Possible Improvements](#possible-improvements)
 
 Installing and running
 ----------------------
@@ -58,8 +64,94 @@ The objective of the assignment is to make the robot go around the environment a
 In addition to allow the robot to drive autonomusly towards the goal, drive it manually with and without driving assistance, i implemented the following behaviors:
 * cancel the goal whenever the user wants
 * reset the position of the robot in the environment 
-* shout down the program 
+* shutdown the program 
 
 To implement the solution, the node `main_ui` was implemented.
 Th structure of the code is the following:
 ![code_structure](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2022.16.38.png)
+`main_ui` node is publishes on `gazebo` and `move_base` nodes. `gazebo` sends back to the `main_ui` node the information about the environment using the `scan` topic.
+`main_ui` publishes the goal using the `move_base/goal` topic. 
+To allow the user to control manually the robot the `teleop` node is launched. The topic `cmd_vel` is remapped on the topic `us_cmd_vel` which is defined by me with the aim of let the `main_ui` node to control if the velocity given by the user should be published, changed or ignored. 
+
+Pseudocode
+-----------------
+
+General behavior of the code:
+```
+while main_ui node is running
+while rospy not on shutdown
+    print menu
+    get user input
+    if user input is 1:
+        set_goal()
+        if goal has been set:
+            print_goal()
+    
+    elif user input is 2:
+        manual mode active
+        drive assistance not active
+        manual_driving()
+
+    elif user input is 3:
+        manual mode active 
+        drive assistance active
+        manual_driving()
+
+    elif user input is 4:
+        cancel_goal()
+
+    elif user input is 9:
+        reset_world()
+
+    elif user input is 0:
+        rospy is shutdown
+
+    else:
+        user input not valid
+```
+
+The function `set_goal()` let the user insert the desired goal coordinates (x,y) and publish them in the `move_base/goal` topic.
+The function `manual_mode()` for both case `2` and `3` doesn't allow the user to define a new goal and use the normal menu and waits for the user input given from keyboard. If it is `b`, exit from the manual mode.
+The difference between case `2` and `3` is that the first one does not have use the `assisted_driving()` function taht uses the `scan` topic to get data from the Laser Scan.
+The pseudocode of `assisted_driving()` function is:
+```
+assisted_driving(msg)
+    get minimum distance from obstacles on the right of the robot
+    get minimum distance from obstacles on the front right of the robot
+    get minimum distance from obstacles in front of the robot
+    get minimum distance from obstacles on the front left of the robot
+    get minimum distance from obstacles on the left of the robot
+
+    if minimum distance from obstacle in front of the robot < threshold:
+        if vel_msg linear > 0 and vel_msg angular == 0:
+            set linear velocity to 0
+
+    if minimum distance from obstacle on the front right of the robot < threshold:
+        if vel_msg linear > 0 and vel_msg angular < 0:
+            set linear and angular velocity to 0
+
+    if minimum distance from obstacle on the front left right of the robot < threshold:
+        if vel_msg linear > 0 and vel_msg angular > 0:
+            set linear and angular velocity to 0
+
+    if minimum distance from obstacle on the right of the robot < threshold:
+        if vel_msg linear == 0 and vel_msg angular < 0:
+            set linear and angular velocity to 0
+
+    if minimum distance from obstacle on the right of the robot < threshold:
+        if vel_msg linear == 0 and vel_msg angular > 0:
+            set linear and angular velocity to 0
+    
+    publish the updated velocity
+```
+
+The function `cancel_goal()` checks if a goal has been set. If a goal has been set, publishes an empty message on the `move_base/cancel` topic. If the goal has not been set, tell the user that no goal was given. 
+
+
+Possible Improvements
+------------------
+
+There are three main improvements that i came up with, which are:
+* Make the robot know a priori if a position in the environment is reachable or not
+* Allow the user to set gol sequentially and allow the robot to reach them one by one
+* Develop a better code structure separating the user interface and the rest of the code using services.
