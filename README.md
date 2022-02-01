@@ -10,7 +10,7 @@ The objective of the project is to develop an architecture that is able to get t
 
 The simulation environment seen in Gazebo is the following:
 ![simulation_environment](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2020.54.15.png)
-It can can be seen the same simulation in Rviz, which is the following:
+It can can be seen the same simulation environment in Rviz, which is the following:
 ![rviz_environment](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2021.35.05.png)
 This solution is developed by: Francesco Ferrazzi 5262829.
 
@@ -35,3 +35,31 @@ $ sudo apt-get install ros-noetic-navigation
 ```bash
 $ sudo apt-get install xterm
 ```
+* to run the program is sufficient to clone the GitHub repository using the following commands:
+```bash
+$ git clone https://github.com/CarmineD8/slam_gmapping.git
+```
+```bash
+$ git clone https://github.com/FraFerrazzi/final_assignment.git
+```
+Remember to switch on the correct branch (noetic) for both projects using:
+```bash
+$ git checkout noetic
+```
+* RUN THE PROGRAM typing on terminal:
+```bash
+$ roslaunch final_assignment final_assignment.launch
+```
+
+Project Description
+-------------------
+
+The objective of the assignment is to make the robot go around the environment allowing the user to choose between the driving modality specified in the introduction of the project.
+In addition to allow the robot to drive autonomusly towards the goal, drive it manually with and without driving assistance, i implemented the following behaviors:
+* cancel the goal whenever the user wants
+* reset the position of the robot in the environment 
+* shout down the program 
+
+To implement the solution, the node `main_ui` was implemented.
+Th structure of the code is the following:
+![code_structure](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2022.16.38.png)
