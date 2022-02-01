@@ -133,7 +133,7 @@ def get_goal(msg):
    the goal
    The function is called each time 
 
-   @param msg, actual goal
+   @param msg, feedback of the robot
 '''
 def goal_reached(msg):
     global goal_set
@@ -285,7 +285,7 @@ def assisted_driving(msg):
    Function called each time the user uses the teleop keyboard to change the
    robot's velocity
 
-   @param 
+   @param msg, robot velocity
 '''
 def set_user_vel(msg):
     global vel_msg
