@@ -9,9 +9,9 @@ The objective of the project is to develop an architecture that is able to get t
 * Let the user drive the robot with the keyboard by assisting him to avoid collisions
 
 The simulation environment seen in Gazebo is the following:
-
+![simulation_environment](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2020.54.15.png)
 It can can be seen the same simulation in Rviz, which is the following:
-
+![rviz_environment](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2021.35.05.png)
 This solution is developed by: Francesco Ferrazzi 5262829.
 
 Table of Contents
