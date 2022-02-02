@@ -19,7 +19,7 @@ from actionlib_msgs.msg import GoalID
 th_reach = 0.3
 # Threshold for avoiding collision
 th_collision = 0.7
-# Max time to let the robot reach the target is 5 minutes
+# Max time to let the robot reach the target is 2 minutes
 max_time = rospy.Duration(120)
 # Initialize input for manual driving mode
 input_man = 'a'
@@ -133,7 +133,7 @@ def get_goal(msg):
    the goal
    The function is called each time 
 
-   @param msg, feedback of the robot
+   @param msg, actual goal
 '''
 def goal_reached(msg):
     global goal_set
@@ -144,8 +144,9 @@ def goal_reached(msg):
         # If time expired, target can not be reached
         if goal_time > max_time:
             cancel_goal()
-            print('\n\nTIME EXPIRED: target is unreachable\n\n')
-
+            print('TIME EXPIRED: target is considered unreachable\n\n')
+            time.sleep(1)
+            
         # Get robot position in a certain instant
         rob_x = msg.feedback.base_position.pose.position.x
         rob_y = msg.feedback.base_position.pose.position.y
@@ -157,8 +158,9 @@ def goal_reached(msg):
         # See if it's close enough to be considered goal reached
         if abs(x_dist) < th_reach and abs(y_dist) < th_reach:
             cancel_goal()
-            print('\n\nGOAL REACHED\n\n')       
-
+            print('GOAL REACHED\n\n') 
+            time.sleep(1)      
+	    
 
 '''
    Function used to cancel the goal
@@ -285,7 +287,7 @@ def assisted_driving(msg):
    Function called each time the user uses the teleop keyboard to change the
    robot's velocity
 
-   @param msg, robot velocity
+   @param 
 '''
 def set_user_vel(msg):
     global vel_msg
