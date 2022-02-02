@@ -2,7 +2,9 @@ Assignment 3 - Final Assignment
 ==================================
 
 This is the third and final assignment of the course Research Track 1, provided by Università Degli Studi di Genova, Robotics Engineering degree.
+
 The simulation includes a robot equipped with a laser scanner placed inside an environment in which there are obstacles. 
+
 The objective of the project is to develop an architecture that can get the user request, and let the robot execute one of the following behaviors:
 * Autonomously reach the (x,y) coordinate inserted by the user
 * Let the user drive the robot with the keyboard
@@ -10,8 +12,10 @@ The objective of the project is to develop an architecture that can get the user
 
 The simulation environment seen in Gazebo is the following:
 ![simulation_environment](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2020.54.15.png)
+
 It can be seen the same simulation environment in Rviz, which is the following:
 ![rviz_environment](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2021.35.05.png)
+
 This solution is developed by: Francesco Ferrazzi 5262829.
 
 Table of Contents
@@ -61,6 +65,7 @@ Project Description
 -------------------
 
 The objective of the assignment is to make the robot go around the environment allowing the user to choose between the driving modality specified in the introduction of the project.
+
 In addition to let the robot drive autonomously towards the goal, drive it manually with and without driving assistance, I implemented also the following behaviors:
 * cancel the goal whenever the user wants
 * reset the position of the robot in the environment 
@@ -69,8 +74,11 @@ In addition to let the robot drive autonomously towards the goal, drive it manua
 To implement the solution, the node `main_ui` was implemented.
 The structure of the project is the following:
 ![code_structure](https://github.com/FraFerrazzi/final_assignment/blob/noetic/images/Schermata%202022-02-01%20alle%2022.16.38.png)
+
 `main_ui` node publishes on `gazebo` and `move_base` nodes. `gazebo` sends back to the `main_ui` node the information about the environment using the `scan` topic.
+
 `main_ui` publishes the goal using the `move_base/goal` topic. 
+
 To allow the user to control manually the robot the `teleop` node is used. The topic `cmd_vel` is remapped on the topic `us_cmd_vel` which is defined by me to let the `main_ui` node control if the velocity given by the user should be published, changed, or ignored. 
 
 Pseudocode
@@ -111,8 +119,11 @@ while rospy not on shutdown
 ```
 
 The function `set_goal()` let the user insert the desired goal coordinates (x,y) and publish them in the `move_base/goal` topic.
+
 The function `manual_mode()` for both cases `2` and `3` doesn't allow the user to define a new goal and use the normal menu. The function waits for the user's input given from the keyboard. If the command given is `b`, exit from the manual mode.
+
 The difference between cases `2` and `3` is that the first one does not use the `assisted_driving()` function which uses the `scan` topic to get data from the Laser Scan and helps the user in driving the robot.
+
 The pseudocode of `assisted_driving()` function is:
 ```
 assisted_driving(msg)
